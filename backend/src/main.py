@@ -12,7 +12,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
 
-from src.api.routes import auth, argo, chat, export
+from src.api.routes import auth, export, ingestion, measurements
+from src.api.routes import argo_real as argo
+from src.api.routes import chat_real as chat
 from src.core.config import settings
 
 
@@ -160,6 +162,18 @@ app.include_router(
     export.router,
     prefix="/api/v1/export",
     tags=["Data Export"],
+)
+
+app.include_router(
+    ingestion.router,
+    prefix="/api/v1/ingestion",
+    tags=["Data Ingestion"],
+)
+
+app.include_router(
+    measurements.router,
+    prefix="/api/v1/measurements",
+    tags=["ARGO Measurements"],
 )
 
 

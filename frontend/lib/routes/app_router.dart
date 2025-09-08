@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../screens/auth/auth_screen.dart';
 import '../screens/chat/chat_screen.dart';
+import '../screens/dashboard/advanced_dashboard_screen.dart';
 import '../screens/dashboard/dashboard_screen.dart';
 import '../widgets/common/main_layout.dart';
 
@@ -32,14 +33,14 @@ class AppRouter {
           GoRoute(
             path: home,
             name: 'home',
-            builder: (context, state) => const DashboardScreen(),
+            builder: (context, state) => const AdvancedDashboardScreen(),
           ),
           
           // Dashboard
           GoRoute(
             path: dashboard,
             name: 'dashboard',
-            builder: (context, state) => const DashboardScreen(),
+            builder: (context, state) => const AdvancedDashboardScreen(),
           ),
           
           // Chat

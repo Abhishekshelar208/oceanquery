@@ -9,12 +9,12 @@ alembic==1.14.0
 
 # Data models and validation
 pydantic==2.10.4
-pydantic-settings==2.6.2
+pydantic-settings==2.10.1
 
 # Data processing
 pandas==2.2.3
-numpy==2.2.1
-xarray==2024.12.0
+numpy==2.3.2
+xarray==2025.9.0
 netcdf4==1.7.2
 
 # AI/ML and vector search

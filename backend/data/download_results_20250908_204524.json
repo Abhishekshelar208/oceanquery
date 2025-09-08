@@ -1,0 +1,100 @@
+{
+  "download_results": [
+    {
+      "file_path": "incois/5907139/profiles/R5907139_004.nc",
+      "local_path": "/Users/abhishekshelar/StudioProjects/oceanquery/backend/data/raw/incois/5907139/profiles/R5907139_004.nc",
+      "success": false,
+      "message": "Cannot connect to host data-argo.ifremer.fr:443 ssl:True [SSLCertVerificationError: (1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1028)')]",
+      "size": 0,
+      "timestamp": "2025-09-08T20:45:17.750882"
+    },
+    {
+      "file_path": "incois/2903895/profiles/D2903895_033.nc",
+      "local_path": "/Users/abhishekshelar/StudioProjects/oceanquery/backend/data/raw/incois/2903895/profiles/D2903895_033.nc",
+      "success": false,
+      "message": "Cannot connect to host data-argo.ifremer.fr:443 ssl:True [SSLCertVerificationError: (1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1028)')]",
+      "size": 0,
+      "timestamp": "2025-09-08T20:45:17.775038"
+    },
+    {
+      "file_path": "aoml/1901805/profiles/D1901805_287.nc",
+      "local_path": "/Users/abhishekshelar/StudioProjects/oceanquery/backend/data/raw/aoml/1901805/profiles/D1901805_287.nc",
+      "success": false,
+      "message": "Cannot connect to host data-argo.ifremer.fr:443 ssl:True [SSLCertVerificationError: (1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1028)')]",
+      "size": 0,
+      "timestamp": "2025-09-08T20:45:17.777911"
+    },
+    {
+      "file_path": "aoml/2903139/profiles/R2903139_087.nc",
+      "local_path": "/Users/abhishekshelar/StudioProjects/oceanquery/backend/data/raw/aoml/2903139/profiles/R2903139_087.nc",
+      "success": false,
+      "message": "Cannot connect to host data-argo.ifremer.fr:443 ssl:True [SSLCertVerificationError: (1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1028)')]",
+      "size": 0,
+      "timestamp": "2025-09-08T20:45:19.602797"
+    },
+    {
+      "file_path": "aoml/5907107/profiles/R5907107_041.nc",
+      "local_path": "/Users/abhishekshelar/StudioProjects/oceanquery/backend/data/raw/aoml/5907107/profiles/R5907107_041.nc",
+      "success": false,
+      "message": "Cannot connect to host data-argo.ifremer.fr:443 ssl:True [SSLCertVerificationError: (1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1028)')]",
+      "size": 0,
+      "timestamp": "2025-09-08T20:45:19.837967"
+    },
+    {
+      "file_path": "incois/3902581/profiles/D3902581_038.nc",
+      "local_path": "/Users/abhishekshelar/StudioProjects/oceanquery/backend/data/raw/incois/3902581/profiles/D3902581_038.nc",
+      "success": false,
+      "message": "Cannot connect to host data-argo.ifremer.fr:443 ssl:True [SSLCertVerificationError: (1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1028)')]",
+      "size": 0,
+      "timestamp": "2025-09-08T20:45:22.266538"
+    },
+    {
+      "file_path": "coriolis/3902490/profiles/R3902490_060.nc",
+      "local_path": "/Users/abhishekshelar/StudioProjects/oceanquery/backend/data/raw/coriolis/3902490/profiles/R3902490_060.nc",
+      "success": false,
+      "message": "Cannot connect to host data-argo.ifremer.fr:443 ssl:True [SSLCertVerificationError: (1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1028)')]",
+      "size": 0,
+      "timestamp": "2025-09-08T20:45:22.464266"
+    },
+    {
+      "file_path": "aoml/1902471/profiles/R1902471_061.nc",
+      "local_path": "/Users/abhishekshelar/StudioProjects/oceanquery/backend/data/raw/aoml/1902471/profiles/R1902471_061.nc",
+      "success": false,
+      "message": "Cannot connect to host data-argo.ifremer.fr:443 ssl:True [SSLCertVerificationError: (1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1028)')]",
+      "size": 0,
+      "timestamp": "2025-09-08T20:45:24.113823"
+    },
+    {
+      "file_path": "coriolis/6903148/profiles/R6903148_109.nc",
+      "local_path": "/Users/abhishekshelar/StudioProjects/oceanquery/backend/data/raw/coriolis/6903148/profiles/R6903148_109.nc",
+      "success": false,
+      "message": "Cannot connect to host data-argo.ifremer.fr:443 ssl:True [SSLCertVerificationError: (1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1028)')]",
+      "size": 0,
+      "timestamp": "2025-09-08T20:45:24.159865"
+    },
+    {
+      "file_path": "meds/4902626/profiles/R4902626_071.nc",
+      "local_path": "/Users/abhishekshelar/StudioProjects/oceanquery/backend/data/raw/meds/4902626/profiles/R4902626_071.nc",
+      "success": false,
+      "message": "Cannot connect to host data-argo.ifremer.fr:443 ssl:True [SSLCertVerificationError: (1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1028)')]",
+      "size": 0,
+      "timestamp": "2025-09-08T20:45:24.742898"
+    }
+  ],
+  "statistics": {
+    "downloaded": 0,
+    "skipped": 0,
+    "failed": 0,
+    "total_files": 0,
+    "total_size_mb": 0.0,
+    "elapsed_seconds": 11.29865026473999,
+    "download_rate_mbps": 0.0
+  },
+  "arguments": {
+    "index_file": "/Users/abhishekshelar/StudioProjects/oceanquery/backend/data/argo_index_subset.csv",
+    "output_dir": "/Users/abhishekshelar/StudioProjects/oceanquery/backend/data/raw",
+    "limit": 10,
+    "max_concurrent": 5,
+    "base_url": "https://data-argo.ifremer.fr"
+  }
+}

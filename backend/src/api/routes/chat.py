@@ -223,16 +223,19 @@ async def delete_conversation(conversation_id: str):
     return {"message": f"Conversation {conversation_id} deleted successfully"}
 
 
-@router.post("/feedback")
-async def submit_feedback(
-    conversation_id: str,
-    message_id: str,
-    rating: int = Field(..., ge=1, le=5),
+class FeedbackRequest(BaseModel):
+    """Request model for feedback submission."""
+    conversation_id: str
+    message_id: str
+    rating: int = Field(..., ge=1, le=5, description="Rating from 1-5")
     comment: Optional[str] = None
-):
+
+
+@router.post("/feedback")
+async def submit_feedback(request: FeedbackRequest):
     """Submit feedback on AI responses."""
     return {
         "message": "Feedback submitted successfully",
-        "conversation_id": conversation_id,
-        "rating": rating
+        "conversation_id": request.conversation_id,
+        "rating": request.rating
     }

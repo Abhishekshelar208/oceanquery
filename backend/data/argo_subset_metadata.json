@@ -1,0 +1,21 @@
+{
+  "total_profiles_in_index": 3209286,
+  "filtered_profiles": 200,
+  "filter_criteria": {
+    "region": "Indian Ocean (20\u00b0S-30\u00b0N, 20\u00b0E-120\u00b0E)",
+    "time_window": "Last 12-24 months",
+    "quality": "Core ARGO profiles only",
+    "max_profiles": 200
+  },
+  "created_at": "2025-09-08T20:44:04.376818",
+  "geographic_bounds": {
+    "min_lat": -19.884,
+    "max_lat": 24.555,
+    "min_lon": 40.949,
+    "max_lon": 113.893
+  },
+  "date_range": {
+    "earliest": "20240918012900",
+    "latest": "20250902070118"
+  }
+}

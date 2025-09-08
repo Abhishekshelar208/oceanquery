@@ -59,13 +59,13 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: ${PWD}/infra/data/postgres
+      device: ${PWD}/data/postgres
   redis_data:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ${PWD}/infra/data/redis
+      device: ${PWD}/data/redis
 
 networks:
   oceanquery_network:

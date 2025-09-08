@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../themes/app_theme.dart';
+import '../../services/api/api_client.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -10,6 +11,14 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _messageController = TextEditingController();
+  late final ApiClient _apiClient;
+  
+  @override
+  void initState() {
+    super.initState();
+    _apiClient = ApiClient();
+    _apiClient.initialize();
+  }
   final List<ChatMessage> _messages = [
     ChatMessage(
       text: "Hello! I'm your AI assistant for ocean data exploration. You can ask me questions like:\n\n• \"Show me temperature profiles near 10°N in March 2023\"\n• \"What's the salinity trend in the Indian Ocean?\"\n• \"Find float data around the Maldives\"",
@@ -207,35 +216,64 @@ class _ChatScreenState extends State<ChatScreen> {
     });
 
     _messageController.clear();
-    _simulateAIResponse(text);
+    _sendRealAPIRequest(text);
   }
 
-  void _simulateAIResponse(String userMessage) {
-    // Simulate AI thinking delay
-    Future.delayed(const Duration(seconds: 2), () {
+  Future<void> _sendRealAPIRequest(String userMessage) async {
+    try {
+      // Show typing indicator
       setState(() {
         _messages.add(ChatMessage(
-          text: _generateMockResponse(userMessage),
+          text: "🤖 Analyzing your query...",
           isUser: false,
           timestamp: DateTime.now(),
         ));
       });
-    });
-  }
-
-  String _generateMockResponse(String userMessage) {
-    final message = userMessage.toLowerCase();
-    
-    if (message.contains('temperature')) {
-      return "I found temperature data for your query. Based on ARGO float measurements:\n\n🌡️ Average sea surface temperature: 28.5°C\n📊 Temperature range: 15-32°C at surface\n📈 Showing depth profile visualization...\n\n*Generated SQL:*\n```sql\nSELECT temperature, depth, lat, lon \nFROM argo_profiles \nWHERE measurement_date >= '2023-03-01'\n```";
-    } else if (message.contains('salinity')) {
-      return "Here's the salinity analysis from ARGO data:\n\n💧 Average salinity: 35.2 PSU\n🌊 Range: 33.8 - 37.1 PSU\n📍 Location: Indian Ocean region\n\nWould you like me to show the salinity-temperature diagram?";
-    } else if (message.contains('float')) {
-      return "Found 47 ARGO floats in the specified region:\n\n🎯 Active floats: 42\n📡 Last transmission: 2 hours ago\n🗺️ Showing locations on map...\n\nWhich specific float data would you like to explore?";
-    } else {
-      return "I understand you're asking about ocean data. Let me help you explore the ARGO dataset.\n\nI can assist with:\n• Temperature and salinity profiles\n• Float locations and trajectories  \n• Data trends and anomalies\n• Custom data exports\n\nCould you be more specific about what you'd like to analyze?";
+      
+      // Call real API
+      final response = await _apiClient.sendChatMessage(userMessage);
+      
+      // Remove typing indicator
+      setState(() {
+        _messages.removeLast();
+      });
+      
+      // Show real response
+      String responseText = response['message'] ?? 'No response received';
+      
+      // Add SQL query if available
+      if (response['sql_query'] != null) {
+        responseText += '\n\n📝 **Generated SQL:**\n```sql\n${response['sql_query']}\n```';
+      }
+      
+      // Add processing time
+      if (response['processing_time_ms'] != null) {
+        responseText += '\n\n⚡ Processed in ${response['processing_time_ms'].toStringAsFixed(1)}ms';
+      }
+      
+      setState(() {
+        _messages.add(ChatMessage(
+          text: responseText,
+          isUser: false,
+          timestamp: DateTime.now(),
+        ));
+      });
+      
+    } catch (e) {
+      // Remove typing indicator if error occurs
+      setState(() {
+        if (_messages.isNotEmpty && _messages.last.text.contains("Analyzing")) {
+          _messages.removeLast();
+        }
+        _messages.add(ChatMessage(
+          text: "❌ Sorry, I couldn't process your request: $e\n\nPlease try again or check if the backend is running.",
+          isUser: false,
+          timestamp: DateTime.now(),
+        ));
+      });
     }
   }
+
 
   String _formatTimestamp(DateTime timestamp) {
     final now = DateTime.now();

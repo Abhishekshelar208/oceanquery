@@ -8,14 +8,32 @@ class ApiClient {
   factory ApiClient() => _instance;
   ApiClient._internal();
 
-  late final String _baseUrl;
-  late final Logger _logger;
+  String? _baseUrl;
+  Logger? _logger;
   String? _authToken;
+  bool _initialized = false;
 
   void initialize() {
+    if (_initialized) return; // Prevent multiple initialization
+    
     _baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://localhost:8000';
     _logger = Logger();
-    _logger.i('API Client initialized with base URL: $_baseUrl');
+    _logger!.i('API Client initialized with base URL: $_baseUrl');
+    _initialized = true;
+  }
+  
+  String get baseUrl {
+    if (_baseUrl == null) {
+      initialize();
+    }
+    return _baseUrl!;
+  }
+  
+  Logger get logger {
+    if (_logger == null) {
+      initialize();
+    }
+    return _logger!;
   }
 
   void setAuthToken(String? token) {
@@ -31,7 +49,7 @@ class ApiClient {
   Future<Map<String, dynamic>> sendChatMessage(String message) async {
     try {
       final response = await http.post(
-        Uri.parse('$_baseUrl/api/v1/chat/query'),
+        Uri.parse('$baseUrl/api/v1/chat/query'),
         headers: _headers,
         body: jsonEncode({
           'message': message,
@@ -46,7 +64,7 @@ class ApiClient {
         throw ApiException('Failed to send chat message: ${response.statusCode}');
       }
     } catch (e) {
-      _logger.e('Error sending chat message: $e');
+      logger.e('Error sending chat message: $e');
       rethrow;
     }
   }
@@ -64,7 +82,7 @@ class ApiClient {
         if (status != null) 'status': status,
       };
 
-      final uri = Uri.parse('$_baseUrl/api/v1/argo/floats')
+      final uri = Uri.parse('$baseUrl/api/v1/argo/floats')
           .replace(queryParameters: queryParams);
 
       final response = await http.get(uri, headers: _headers);
@@ -75,7 +93,7 @@ class ApiClient {
         throw ApiException('Failed to get ARGO floats: ${response.statusCode}');
       }
     } catch (e) {
-      _logger.e('Error getting ARGO floats: $e');
+      logger.e('Error getting ARGO floats: $e');
       rethrow;
     }
   }
@@ -83,7 +101,7 @@ class ApiClient {
   Future<Map<String, dynamic>> getArgoStatistics() async {
     try {
       final response = await http.get(
-        Uri.parse('$_baseUrl/api/v1/argo/statistics'),
+        Uri.parse('$baseUrl/api/v1/argo/statistics'),
         headers: _headers,
       );
 
@@ -93,7 +111,7 @@ class ApiClient {
         throw ApiException('Failed to get ARGO statistics: ${response.statusCode}');
       }
     } catch (e) {
-      _logger.e('Error getting ARGO statistics: $e');
+      logger.e('Error getting ARGO statistics: $e');
       rethrow;
     }
   }
@@ -102,7 +120,7 @@ class ApiClient {
   Future<Map<String, dynamic>> login(String email, String password) async {
     try {
       final response = await http.post(
-        Uri.parse('$_baseUrl/api/v1/auth/login'),
+        Uri.parse('$baseUrl/api/v1/auth/login'),
         headers: _headers,
         body: jsonEncode({
           'email': email,
@@ -118,7 +136,7 @@ class ApiClient {
         throw ApiException('Login failed: ${response.statusCode}');
       }
     } catch (e) {
-      _logger.e('Error logging in: $e');
+      logger.e('Error logging in: $e');
       rethrow;
     }
   }
@@ -126,7 +144,7 @@ class ApiClient {
   Future<Map<String, dynamic>> demoLogin() async {
     try {
       final response = await http.get(
-        Uri.parse('$_baseUrl/api/v1/auth/demo-login'),
+        Uri.parse('$baseUrl/api/v1/auth/demo-login'),
         headers: _headers,
       );
 
@@ -138,7 +156,7 @@ class ApiClient {
         throw ApiException('Demo login failed: ${response.statusCode}');
       }
     } catch (e) {
-      _logger.e('Error with demo login: $e');
+      logger.e('Error with demo login: $e');
       rethrow;
     }
   }
@@ -147,7 +165,7 @@ class ApiClient {
   Future<Map<String, dynamic>> healthCheck() async {
     try {
       final response = await http.get(
-        Uri.parse('$_baseUrl/health'),
+        Uri.parse('$baseUrl/health'),
         headers: _headers,
       );
 
@@ -157,7 +175,7 @@ class ApiClient {
         throw ApiException('Health check failed: ${response.statusCode}');
       }
     } catch (e) {
-      _logger.e('Error checking health: $e');
+      logger.e('Error checking health: $e');
       rethrow;
     }
   }
@@ -171,7 +189,7 @@ class ApiClient {
   }) async {
     try {
       final response = await http.post(
-        Uri.parse('$_baseUrl/api/v1/export/request'),
+        Uri.parse('$baseUrl/api/v1/export/request'),
         headers: _headers,
         body: jsonEncode({
           'format': format,
@@ -187,7 +205,7 @@ class ApiClient {
         throw ApiException('Export request failed: ${response.statusCode}');
       }
     } catch (e) {
-      _logger.e('Error requesting export: $e');
+      logger.e('Error requesting export: $e');
       rethrow;
     }
   }
@@ -195,7 +213,7 @@ class ApiClient {
   Future<List<dynamic>> getExportJobs() async {
     try {
       final response = await http.get(
-        Uri.parse('$_baseUrl/api/v1/export/jobs'),
+        Uri.parse('$baseUrl/api/v1/export/jobs'),
         headers: _headers,
       );
 
@@ -205,7 +223,99 @@ class ApiClient {
         throw ApiException('Failed to get export jobs: ${response.statusCode}');
       }
     } catch (e) {
-      _logger.e('Error getting export jobs: $e');
+      logger.e('Error getting export jobs: $e');
+      rethrow;
+    }
+  }
+
+  // Measurement endpoints
+  Future<Map<String, dynamic>> getMeasurementSummary() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/v1/measurements/summary'),
+        headers: _headers,
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        throw ApiException('Failed to get measurement summary: ${response.statusCode}');
+      }
+    } catch (e) {
+      logger.e('Error getting measurement summary: $e');
+      rethrow;
+    }
+  }
+
+  Future<List<dynamic>> getMeasurementStats({
+    String? profileId,
+    String parameter = 'temperature',
+  }) async {
+    try {
+      final queryParams = {
+        'parameter': parameter,
+        if (profileId != null) 'profile_id': profileId,
+      };
+
+      final uri = Uri.parse('$baseUrl/api/v1/measurements/stats')
+          .replace(queryParameters: queryParams);
+
+      final response = await http.get(uri, headers: _headers);
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        throw ApiException('Failed to get measurement stats: ${response.statusCode}');
+      }
+    } catch (e) {
+      logger.e('Error getting measurement stats: $e');
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> getProfileData(String profileId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/v1/measurements/profile/$profileId'),
+        headers: _headers,
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        throw ApiException('Failed to get profile data: ${response.statusCode}');
+      }
+    } catch (e) {
+      logger.e('Error getting profile data: $e');
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> getProfilePlot(
+    String profileId, {
+    String plotType = 'temperature',
+    int width = 10,
+    int height = 8,
+  }) async {
+    try {
+      final queryParams = {
+        'plot_type': plotType,
+        'width': width.toString(),
+        'height': height.toString(),
+      };
+
+      final uri = Uri.parse('$baseUrl/api/v1/measurements/plot/$profileId')
+          .replace(queryParameters: queryParams);
+
+      final response = await http.get(uri, headers: _headers);
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        throw ApiException('Failed to get profile plot: ${response.statusCode}');
+      }
+    } catch (e) {
+      logger.e('Error getting profile plot: $e');
       rethrow;
     }
   }

@@ -88,6 +88,33 @@ db-admin: ## Start PgAdmin (database admin interface)
 	@echo "$(GREEN)✅ PgAdmin started at http://localhost:8081$(NC)"
 	@echo "$(YELLOW)Login: admin@oceanquery.com / admin123$(NC)"
 
+##@ Data Ingestion
+
+ingest-argo: ## Ingest ARGO data from directory
+	@echo "$(BLUE)Starting ARGO data ingestion...$(NC)"
+	cd backend && source .venv/bin/activate && python scripts/ingest_argo.py ingest
+
+ingest-argo-sample: ## Ingest sample ARGO data (dry run)
+	@echo "$(BLUE)Ingesting sample ARGO data...$(NC)"
+	cd backend && source .venv/bin/activate && python scripts/ingest_argo.py ingest --sample --dry-run
+
+ingest-stats: ## Get ingestion statistics
+	@echo "$(BLUE)Getting ingestion statistics...$(NC)"
+	cd backend && source .venv/bin/activate && python scripts/ingest_argo.py stats
+
+ingest-optimize: ## Optimize database and cleanup logs
+	@echo "$(BLUE)Optimizing database...$(NC)"
+	cd backend && source .venv/bin/activate && python scripts/ingest_argo.py optimize
+
+ingest-resume: ## Resume interrupted ingestion
+	@echo "$(BLUE)Resuming ARGO ingestion...$(NC)"
+	cd backend && source .venv/bin/activate && python scripts/ingest_argo.py resume
+
+ingest-file: ## Ingest single file (usage: make ingest-file FILE=path/to/file.nc)
+	@echo "$(BLUE)Ingesting single file...$(NC)"
+	@if [ -z "$(FILE)" ]; then echo "Usage: make ingest-file FILE=path/to/file.nc"; exit 1; fi
+	cd backend && source .venv/bin/activate && python scripts/ingest_argo.py ingest-file --input "$(FILE)"
+
 ##@ Code Quality
 
 test: ## Run tests
