@@ -146,3 +146,4 @@ firebase-debug.log
 # Temporary files
 *.tmp
 *.temp
+backend/ar_index_global_prof.txt
