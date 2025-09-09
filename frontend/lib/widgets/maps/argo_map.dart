@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../../themes/app_theme.dart';
+import '../../services/api/api_client.dart';
 
 class ArgoMap extends StatefulWidget {
   const ArgoMap({super.key});
@@ -12,9 +13,86 @@ class ArgoMap extends StatefulWidget {
 
 class _ArgoMapState extends State<ArgoMap> {
   final MapController _mapController = MapController();
+  final ApiClient _apiClient = ApiClient();
+  
+  List<Map<String, dynamic>> _floats = [];
+  bool _isLoading = true;
+  String? _error;
+  
+  @override
+  void initState() {
+    super.initState();
+    _loadFloats();
+  }
+  
+  Future<void> _loadFloats() async {
+    try {
+      setState(() {
+        _isLoading = true;
+        _error = null;
+      });
+      
+      final floats = await _apiClient.getFloats(limit: 100);
+      
+      setState(() {
+        _floats = floats.cast<Map<String, dynamic>>();
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Container(
+        height: 400,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.grey.shade300),
+        ),
+        child: const Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 16),
+              Text('Loading ARGO floats...'),
+            ],
+          ),
+        ),
+      );
+    }
+    
+    if (_error != null) {
+      return Container(
+        height: 400,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.red.shade300),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.error, color: Colors.red, size: 48),
+              const SizedBox(height: 16),
+              Text('Error loading floats: $_error'),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _loadFloats,
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
@@ -109,7 +187,7 @@ class _ArgoMapState extends State<ArgoMap> {
                       ],
                     ),
                     child: Text(
-                      '47 Floats',
+                      '${_floats.length} Floats',
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
@@ -192,24 +270,24 @@ class _ArgoMapState extends State<ArgoMap> {
   }
 
   List<Marker> _generateFloatMarkers() {
-    // Mock ARGO float locations in the Indian Ocean
-    final floatData = [
-      {'lat': 10.5, 'lon': 77.2, 'id': '2902755', 'active': true},
-      {'lat': 8.3, 'lon': 73.1, 'id': '2902756', 'active': true},
-      {'lat': 12.7, 'lon': 79.5, 'id': '2902757', 'active': false},
-      {'lat': 6.1, 'lon': 80.2, 'id': '2902758', 'active': true},
-      {'lat': 15.4, 'lon': 68.9, 'id': '2902759', 'active': true},
-      {'lat': 9.8, 'lon': 76.3, 'id': '2902760', 'active': true},
-      {'lat': 13.2, 'lon': 74.8, 'id': '2902761', 'active': false},
-      {'lat': 7.6, 'lon': 78.7, 'id': '2902762', 'active': true},
-    ];
-
-    return floatData.map((data) {
-      final isActive = data['active'] as bool;
+    if (_floats.isEmpty) return [];
+    
+    return _floats.map((floatData) {
+      final lastPosition = floatData['last_position'];
+      if (lastPosition == null || 
+          lastPosition['lat'] == null || 
+          lastPosition['lon'] == null) {
+        return null;
+      }
+      
+      final isActive = floatData['status'] == 'active';
+      final lat = lastPosition['lat'] as double;
+      final lon = lastPosition['lon'] as double;
+      
       return Marker(
-        point: LatLng(data['lat'] as double, data['lon'] as double),
+        point: LatLng(lat, lon),
         child: GestureDetector(
-          onTap: () => _showFloatInfo(data['id'] as String, isActive),
+          onTap: () => _showFloatInfo(floatData),
           child: Container(
             width: 16,
             height: 16,
@@ -233,10 +311,15 @@ class _ArgoMapState extends State<ArgoMap> {
           ),
         ),
       );
-    }).toList();
+    }).where((marker) => marker != null).cast<Marker>().toList();
   }
 
-  void _showFloatInfo(String floatId, bool isActive) {
+  void _showFloatInfo(Map<String, dynamic> floatData) {
+    final isActive = floatData['status'] == 'active';
+    final floatId = floatData['float_id'] as String;
+    final lastPosition = floatData['last_position'];
+    final totalProfiles = floatData['total_profiles'] ?? 0;
+    
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -263,11 +346,17 @@ class _ArgoMapState extends State<ArgoMap> {
               ],
             ),
             const SizedBox(height: 8),
-            Text('Last transmission: ${isActive ? "2 hours ago" : "3 days ago"}'),
+            if (lastPosition != null && lastPosition['date'] != null)
+              Text('Last position: ${lastPosition['date']}'),
             const SizedBox(height: 4),
-            Text('Profiles collected: ${isActive ? "1,247" : "892"}'),
+            Text('Profiles collected: $totalProfiles'),
             const SizedBox(height: 4),
-            Text('Current depth: ${isActive ? "Surface" : "Unknown"}'),
+            if (lastPosition != null)
+              Text('Position: ${lastPosition['lat']?.toStringAsFixed(2)}°, ${lastPosition['lon']?.toStringAsFixed(2)}°'),
+            const SizedBox(height: 4),
+            Text('Platform: ${floatData['platform_number'] ?? 'Unknown'}'),
+            const SizedBox(height: 4),
+            Text('Institution: ${floatData['institution'] ?? 'Unknown'}'),
           ],
         ),
         actions: [
@@ -275,15 +364,24 @@ class _ArgoMapState extends State<ArgoMap> {
             onPressed: () => Navigator.of(context).pop(),
             child: const Text('Close'),
           ),
-          if (isActive)
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                // TODO: Navigate to detailed float data
-              },
-              child: const Text('View Data'),
-            ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _viewFloatDetails(floatId);
+            },
+            child: const Text('View Data'),
+          ),
         ],
+      ),
+    );
+  }
+  
+  void _viewFloatDetails(String floatId) {
+    // TODO: Navigate to detailed float data view
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Viewing details for float $floatId'),
+        backgroundColor: AppTheme.primaryBlue,
       ),
     );
   }

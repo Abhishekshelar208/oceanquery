@@ -6,6 +6,7 @@ Targets last 12 months in Indian Ocean region for efficient processing.
 
 import pandas as pd
 import numpy as np
+import os
 from datetime import datetime, timedelta
 from pathlib import Path
 import json
@@ -82,7 +83,9 @@ def build_download_urls(df: pd.DataFrame, base_url: str = "https://data-argo.ifr
 def main():
     """Main filtering workflow."""
     backend_dir = Path(__file__).parent.parent
-    index_file = backend_dir / "ar_index_global_prof.txt"
+    # Use environment variable or default path outside project
+    index_file_path = os.environ.get('ARGO_INDEX_FILE', '/Users/abhishekshelar/Desktop/SIH/ar_index_global_prof.txt')
+    index_file = Path(index_file_path)
     output_dir = backend_dir / "data"
     
     if not index_file.exists():

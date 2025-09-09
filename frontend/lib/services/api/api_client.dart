@@ -82,7 +82,7 @@ class ApiClient {
         if (status != null) 'status': status,
       };
 
-      final uri = Uri.parse('$baseUrl/api/v1/argo/floats')
+      final uri = Uri.parse('$baseUrl/api/v1/argo-real/floats')
           .replace(queryParameters: queryParams);
 
       final response = await http.get(uri, headers: _headers);
@@ -96,6 +96,15 @@ class ApiClient {
       logger.e('Error getting ARGO floats: $e');
       rethrow;
     }
+  }
+
+  // Alternative method name for convenience
+  Future<List<dynamic>> getFloats({
+    String? status,
+    int limit = 50,
+    int offset = 0,
+  }) async {
+    return getArgoFloats(status: status, limit: limit, offset: offset);
   }
 
   Future<Map<String, dynamic>> getArgoStatistics() async {

@@ -265,12 +265,55 @@ ORDER BY pressure;
         }
     }
 
-def analyze_real_float_data(db: Session):
+def detect_query_intent(query: str):
+    """Detect the user's intent from their query."""
+    query_lower = query.lower().strip()
+    
+    # Patterns for simple count requests
+    simple_count_patterns = [
+        r'how many floats?',
+        r'how many floats do you have?',
+        r'floats count',
+        r'^count floats?$',
+        r'^\d+$',  # Just asking for a number
+    ]
+    
+    # Check for simple count patterns
+    import re
+    for pattern in simple_count_patterns:
+        if re.search(pattern, query_lower):
+            return "simple_count"
+    
+    # Check if user asks specifically "how many" with float-related terms
+    if ("how many" in query_lower and 
+        any(term in query_lower for term in ["float", "sensor", "buoy", "device"]) and
+        len(query_lower.split()) <= 8):  # Allow slightly longer queries like "how many active floats do you have"
+        return "simple_count"
+    
+    # Otherwise, return detailed response
+    return "detailed"
+
+def analyze_real_float_data(db: Session, query: str = ""):
     """Analyze real float data from the database."""
     total_floats = db.query(ArgoFloat).count()
     active_floats = db.query(ArgoFloat).filter(ArgoFloat.status == 'active').count()
     total_profiles = db.query(ArgoProfile).count()
     
+    # Detect user intent
+    intent = detect_query_intent(query)
+    
+    if intent == "simple_count":
+        # Return simple count response
+        return {
+            "message": str(total_floats),
+            "sql_query": "SELECT COUNT(*) FROM argo_floats;",
+            "data": {
+                "total_floats": total_floats,
+                "query_type": "simple_count"
+            }
+        }
+    
+    # Default detailed response
     # Get most active floats
     active_float_data = db.query(
         ArgoFloat.float_id,
@@ -396,7 +439,7 @@ async def chat_query_real(request: ChatRequest, db: Session = Depends(get_db)):
         elif any(word in query_lower for word in ["pressure"]):
             response_data = analyze_real_measurement_data(db, "pressure")
         elif any(word in query_lower for word in ["float", "sensor", "buoy", "device"]):
-            response_data = analyze_real_float_data(db)
+            response_data = analyze_real_float_data(db, request.message)
         elif any(word in query_lower for word in ["measurement", "data", "summary", "statistics", "stats"]):
             response_data = analyze_real_measurement_data(db, "temperature")
         else:

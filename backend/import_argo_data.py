@@ -42,7 +42,9 @@ def import_argo_data(limit=1000):
         floats_added = 0
         profiles_added = 0
         
-        with open('ar_index_global_prof.txt', 'r') as file:
+        # Update this path to where you moved the file
+        index_file_path = os.environ.get('ARGO_INDEX_FILE', '/Users/abhishekshelar/Desktop/SIH/ar_index_global_prof.txt')
+        with open(index_file_path, 'r') as file:
             # Skip header lines (start with #)
             for line in file:
                 if not line.startswith('#'):
