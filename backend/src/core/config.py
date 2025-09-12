@@ -80,6 +80,12 @@ class Settings(BaseSettings):
     embedding_model: str = Field(
         default="text-embedding-ada-002", alias="EMBEDDING_MODEL"
     )
+    
+    # RAG System Settings
+    rag_max_context_tokens: int = Field(default=4000, alias="RAG_MAX_CONTEXT_TOKENS")
+    rag_relevance_threshold: float = Field(default=0.75, alias="RAG_RELEVANCE_THRESHOLD")
+    rag_max_chunks: int = Field(default=8, alias="RAG_MAX_CHUNKS")
+    auto_load_knowledge: bool = Field(default=True, alias="AUTO_LOAD_KNOWLEDGE")
 
     # Firebase Authentication
     firebase_project_id: Optional[str] = Field(default=None, alias="FIREBASE_PROJECT_ID")

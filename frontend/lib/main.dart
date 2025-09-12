@@ -36,10 +36,9 @@ class OceanQueryApp extends StatelessWidget {
       title: 'OceanQuery',
       debugShowCheckedModeBanner: false,
       
-      // Theme configuration
+      // Theme configuration - Always light theme
       theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
+      themeMode: ThemeMode.light,
       
       // Router configuration
       routerConfig: AppRouter.router,

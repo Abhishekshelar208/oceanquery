@@ -69,6 +69,31 @@ class ApiClient {
     }
   }
 
+  // Advanced Chat with RAG enhancement
+  Future<Map<String, dynamic>> sendAdvancedChatMessage(String message) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/api/v1/enhanced/chat'),
+        headers: _headers,
+        body: jsonEncode({
+          'query': message,
+          'enable_rag': true,
+          'include_sql': false,
+          'max_results': 100,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        throw ApiException('Failed to send advanced chat message: ${response.statusCode}');
+      }
+    } catch (e) {
+      logger.e('Error sending advanced chat message: $e');
+      rethrow;
+    }
+  }
+
   // ARGO data endpoints
   Future<List<dynamic>> getArgoFloats({
     String? status,

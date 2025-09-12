@@ -138,10 +138,27 @@ firebase-debug.log
 /backend/faiss_index/
 /backend/chroma_db/
 
+# Database data (PostgreSQL)
+/infra/data/
+*.pid
+
+# Python cache
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Environment files
+/backend/.env
+/backend/.env.backup
+/frontend/.env
+
 # Sample data (large files)
 /sample_data/*.nc
 /sample_data/*.csv
 /sample_data/*.parquet
+/backend/data/
 
 # Temporary files
 *.tmp

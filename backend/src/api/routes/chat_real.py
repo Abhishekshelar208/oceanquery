@@ -20,6 +20,14 @@ from db.models import ArgoFloat, ArgoProfile, ArgoMeasurement
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+# Import enhanced chat pipeline
+try:
+    from services.nlp.enhanced_chat_pipeline import create_enhanced_chat_pipeline
+    ENHANCED_PIPELINE_AVAILABLE = True
+except ImportError:
+    ENHANCED_PIPELINE_AVAILABLE = False
+    print("Enhanced chat pipeline not available - using basic version")
+
 router = APIRouter()
 
 # Database setup
@@ -32,6 +40,12 @@ def get_db():
         yield db
     finally:
         db.close()
+
+# Initialize enhanced chat pipeline if available
+if ENHANCED_PIPELINE_AVAILABLE:
+    chat_pipeline = create_enhanced_chat_pipeline(db_session_factory=SessionLocal)
+else:
+    chat_pipeline = None
 
 # Request/Response Models
 class ChatMessage(BaseModel):
@@ -464,3 +478,57 @@ async def chat_query_real(request: ChatRequest, db: Session = Depends(get_db)):
             conversation_id=conversation_id,
             processing_time_ms=processing_time
         )
+
+
+@router.post("/enhanced-query", response_model=ChatResponse)
+async def chat_query_enhanced(request: ChatRequest, db: Session = Depends(get_db)):
+    """
+    Process natural language queries using enhanced AI pipeline.
+    """
+    if not ENHANCED_PIPELINE_AVAILABLE or chat_pipeline is None:
+        return ChatResponse(
+            message="❌ Enhanced chat pipeline is not available. Please use the basic /query endpoint.",
+            sql_query=None,
+            data={"error": "Enhanced pipeline unavailable"},
+            conversation_id=request.conversation_id or f"conv_{int(time.time())}",
+            processing_time_ms=0.0
+        )
+    
+    try:
+        # Use the enhanced chat pipeline
+        response = await chat_pipeline.process_query(
+            user_query=request.message,
+            conversation_id=request.conversation_id,
+            include_sql=request.include_sql,
+            max_results=request.max_results,
+            db_session=db
+        )
+        
+        # Convert to ChatResponse format
+        return ChatResponse(
+            message=response['message'],
+            sql_query=response.get('sql_query'),
+            data=response.get('data', {}),
+            conversation_id=response['conversation_id'],
+            processing_time_ms=response['processing_time_ms']
+        )
+        
+    except Exception as e:
+        return ChatResponse(
+            message=f"I encountered an error while processing your query: {str(e)}\\n\\nPlease try rephrasing your question or ask for help.",
+            sql_query=None,
+            data={"error": str(e)},
+            conversation_id=request.conversation_id or f"conv_{int(time.time())}",
+            processing_time_ms=0.0
+        )
+
+
+@router.get("/pipeline-stats")
+async def get_pipeline_statistics():
+    """
+    Get enhanced chat pipeline performance statistics.
+    """
+    if not ENHANCED_PIPELINE_AVAILABLE or chat_pipeline is None:
+        return {"error": "Enhanced pipeline not available"}
+    
+    return chat_pipeline.get_pipeline_stats()

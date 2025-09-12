@@ -16,14 +16,19 @@ pandas==2.2.3
 numpy==2.3.2
 xarray==2025.9.0
 netcdf4==1.7.2
+python-dateutil==2.9.0
 
-# AI/ML and vector search
+# AI/ML and vector search (Local embeddings - no API keys needed)
 faiss-cpu==1.9.0
 chromadb==0.5.23
-langchain==0.3.15
-langchain-openai==0.2.11
-langchain-community==0.3.15
-openai==1.58.1
+sentence-transformers==5.1.0
+torch>=2.0.0
+scikit-learn>=1.0.0
+# Optional: OpenAI for fallback (remove if not needed)
+# langchain==0.3.15
+# langchain-openai==0.2.11
+# langchain-community==0.3.15
+# openai==1.58.1
 
 # Authentication
 firebase-admin==6.6.0
